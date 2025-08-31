@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Scores Table</title>
+<style>
+  body {
+    margin: 0;
+    background: #0b0f14;
+    color: #e6edf3;
+    font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  }
+  h1 {
+    text-align: center;
+    font-size: clamp(22px, 3vw, 32px);
+    margin: 20px 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #111823;
+    margin: 0 auto;
+    font-size: clamp(12px, 1.5vw, 16px);
+  }
+  thead {
+    background: #162030;
+  }
+  th, td {
+    padding: 10px 14px;
+    border: 1px solid #1f2a3a;
+    text-align: center;
+  }
+  th {
+    color: #7cc4ff;
+  }
+  tr:nth-child(even) {
+    background: #151d2a;
+  }
+</style>
+</head>
+<body>
+  <h1>Scores</h1>
+  <table id="scores">
+    <thead>
+      <tr>
+        <th>Beatmap MD5</th>
+        <th>Player</th>
+        <th>Score</th>
+        <th>Max Combo</th>
+        <th>300s</th>
+        <th>100s</th>
+        <th>50s</th>
+        <th>Misses</th>
+        <th>Mods</th>
+        <th>Version</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+<script>
+const DATA_URL = "https://yillie.github.io/test_osc_scores/scores.json"; // bundle JSON as scores.json in same folder
+
+async function load() {
+  try {
+    const res = await fetch(DATA_URL, { cache: "no-store" });
+    if (!res.ok) throw new Error(res.status);
+    const json = await res.json();
+
+    const tbody = document.querySelector("#scores tbody");
+    tbody.innerHTML = "";
+
+    json.beatmaps.forEach(bm => {
+      bm.scores.forEach(score => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${bm.md5}</td>
+          <td>${score.player_name}</td>
+          <td>${score.replay_score.toLocaleString()}</td>
+          <td>${score.max_combo}</td>
+          <td>${score.num_300s}</td>
+          <td>${score.num_100s}</td>
+          <td>${score.num_50s}</td>
+          <td>${score.num_misses}</td>
+          <td>${score.mods}</td>
+          <td>${score.version}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    });
+  } catch (err) {
+    document.querySelector("#scores tbody").innerHTML =
+      `<tr><td colspan="10" style="color:#ff7b7b;">Failed to load JSON: ${err}</td></tr>`;
+  }
+}
+
+load();
+</script>
+</body>
+</html>
